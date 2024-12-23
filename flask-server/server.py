@@ -37,7 +37,6 @@ def edit_chat_name():
 @app.route('/send-message', methods=['POST'])
 def send_message():
     data = request.get_json()
-    print(f"data: {data}")
     chat_manager.add_message(data["id"], data["content"], "user")
 
     def generate():

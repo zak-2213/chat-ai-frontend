@@ -170,9 +170,7 @@ const Chat = () => {
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto overflow-scroll hide-scrollbar"
         >
-          {chat.length === 0 ? (
-            <p>Send Claude a message</p>
-          ) : (
+          {chat.length === 0 ? (<></>) : (
             <>
               {chat.map((message, chatIndex) =>
                 message.role === "user" ? (
