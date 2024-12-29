@@ -1,7 +1,7 @@
 import os
 import json
 from uuid import uuid4
-from claude import ClaudeManager
+from ai_manager import AIManager
 
 class ChatManager:
     def __init__(self, storage_dir=".chat_history"):
@@ -16,7 +16,7 @@ class ChatManager:
             "context": []
         }
         self.current_chat_path = None
-        self._claude_manager = ClaudeManager(model="haiku")
+        self._ai_manager = AIManager(model="haiku")
 
     def create_new_chat(self):
         chat_id = str(uuid4())
@@ -43,18 +43,38 @@ class ChatManager:
         if len(self.current_chat["context"]) < 2:
             return
 
-        # Create a simplified version of the first exchange for name generation
+        first_user_text = None
+        for message in self.current_chat["context"]:
+            if message["role"] == "user":
+                # Check if there's any text content in the message
+                text_contents = [item["text"] for item in message["content"] if item["type"] == "text"]
+                if text_contents:
+                    first_user_text = text_contents[0]
+                    break
+
+        if not first_user_text:
+            return
+
+        first_assistant = next(
+            (msg["content"] for msg in self.current_chat["context"]
+            if msg["role"] == "assistant"),
+            None
+        )
+
+        if not first_assistant:
+            return
+
         first_exchange = [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": self.current_chat["context"][0]["content"][0]["text"]}]
+                "content": first_user_text
             },
             {
                 "role": "assistant",
-                "content": self.current_chat["context"][1]["content"]
+                "content": first_assistant
             }
         ]
-        # Add the naming request
+
         first_exchange.append({
             "role": "user",
             "content": [{
@@ -62,7 +82,7 @@ class ChatManager:
                 "text": "Using the first couple of messages, create a concise name for this chat relevant to the discussion. Avoid including words referencing 'chat' or 'discussion'. Respond with only the chat name and nothing else."
             }]
         })
-        response_text = self._claude_manager.get_response(first_exchange).content[0].text.strip().upper()
+        response_text = self._ai_manager.get_response(first_exchange).content[0].text.strip().upper()
         self.current_chat["chat_name"] = response_text
         # Save the updated chat with new name
         self._save_chat()

@@ -31,21 +31,34 @@ const TextInput = ({ sendMessage }) => {
     }
   };
 
-  const handleUpload = (file) => {
+  const handleUpload = async (file) => {
     const fd = new FormData();
     fd.append("file", file);
 
-    fetch("http://localhost:5000/upload-file", {
-      method: "POST",
-      body: fd,
-    })
-      .then((res) => res.json())
-      .then((data) => setContent([...content, data.FileData]))
-      .catch((err) => console.error("Error uploading file:", err));
+    try {
+      const res = await fetch("http://localhost:5000/upload-file", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      setContent((prev) => [
+        ...prev,
+        {
+          ...data.FileData,
+          filename: file.name,
+        },
+      ]);
+    } catch (err) {
+      console.error("Error uploading file:", err);
+    }
   };
 
   const handleSendMessage = () => {
-    let messagesToSend = [...content];
+    console.log(content);
+    let messagesToSend = content.map((item) => {
+      const { filename, ...itemWithoutFilename } = item;
+      return itemWithoutFilename;
+    });
 
     if (inputVal.trim()) {
       messagesToSend.push({
@@ -70,18 +83,19 @@ const TextInput = ({ sendMessage }) => {
         <div className="w-full max-w-[500px] mx-auto flex flex-wrap gap-2">
           {content.map((item, index) => (
             <div key={index} className="relative">
-              {item.type === "image" ||
-                (item.type === "document" && (
-                  <div className="px-3 py-1 flex items-center gap-2">
-                    <span className="text-gray-300 text-sm">File uploaded</span>
-                    <button
-                      onClick={() => removeContent(index)}
-                      className="text-white"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+              {(item.type === "image" || item.type === "document") && (
+                <div className="px-3 py-1 flex items-center gap-2">
+                  <span className="text-gray-300 text-sm">
+                    {item.filename || "File uploaded"}
+                  </span>
+                  <button
+                    onClick={() => removeContent(index)}
+                    className="text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               {item.type === "text" && (
                 <div className="px-3 py-1 bg-gray-800 rounded flex items-center gap-2">
                   <pre className="text-gray-300 text-sm whitespace-pre-wrap max-h-[200px] overflow-y-auto custom-scrollbar">
@@ -127,8 +141,13 @@ const TextInput = ({ sendMessage }) => {
           <input
             className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             type="file"
-            onChange={(event) => handleUpload(event.target.files[0])}
-            title="" // Removes the "No file chosen" text
+            multiple
+            onChange={(event) => {
+              Array.from(event.target.files).forEach((file) => {
+                handleUpload(file);
+              });
+            }}
+            title=""
           />
         </div>
       </div>
