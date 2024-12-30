@@ -1,8 +1,8 @@
-This project is a web-based AI chat bot application using Claude AI (will add other providers in the future). It features a React frontend and a Flask backend, allowing users to interact with Claude in real-time conversations.
+This project is a web-based AI chat bot application using Claude and Deepseek. It features a React frontend and a Flask backend, allowing users to interact with the AI assistant in real-time conversations.
 
 Key features:
 
-- Real-time chat interface with Claude AI
+- Real-time chat interface with LLM
 - Multiple chat management (create, edit, delete conversations)
 - File upload capability (images, PDFs, text files)
 - Customizable system prompts
