@@ -1,16 +1,15 @@
 import propTypes from "prop-types";
 
-const Button = ({ onClick, label }) => {
-
+const Button = ({ onClick, label, className }) => {
   return (
     <button
-      className="
+      className={`
         default-box
-        h-[40px]
-        w-[70px]
         text-white
         focus:border-[3px]
-        "
+        px-4 py-2
+        ${className}
+      `}
       onClick={() => onClick()}
     >
       {label}
@@ -21,6 +20,7 @@ const Button = ({ onClick, label }) => {
 Button.propTypes = {
   onClick: propTypes.func.isRequired,
   label: propTypes.string.isRequired,
+  className: propTypes.string,
 };
 
 export default Button;

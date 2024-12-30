@@ -54,7 +54,6 @@ const TextInput = ({ sendMessage }) => {
   };
 
   const handleSendMessage = () => {
-    console.log(content);
     let messagesToSend = content.map((item) => {
       const { filename, ...itemWithoutFilename } = item;
       return itemWithoutFilename;
@@ -133,7 +132,7 @@ const TextInput = ({ sendMessage }) => {
           onKeyDown={handleKeyDown}
           rows="1"
         />
-        <Button onClick={handleSendMessage} label="SEND" />
+        <Button onClick={handleSendMessage} label="SEND" className="h-[40px]"/>
         <div className="relative">
           <button className="default-box h-[40px] w-[70px] text-white focus:border-[3px]">
             UPLOAD

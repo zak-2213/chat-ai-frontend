@@ -119,6 +119,26 @@ def upload_file():
     except Exception as e:
         return {"Status": "Error", "Message": str(e)}, 500
 
+@app.route('/get-providers')
+def get_providers():
+    return {"providers": ai_manager.get_all_providers()}
+
+@app.route('/get-current-provider')
+def get_current_provider():
+    return {"current_provider": ai_manager.get_current_provider()}
+
+@app.route('/set-provider', methods=["POST"])
+def set_provider():
+    data = request.get_json()
+    provider = data["provider"]
+
+    try:
+        ai_manager.set_provider(provider)
+        return {"Status": "Success"}
+    except Exception as e:
+        return {"Status": "Error", "Message": str(e)}, 500
+
+
 @app.route('/get-models')
 def get_models():
     return ai_manager.get_all_models()
@@ -130,13 +150,13 @@ def get_model():
 @app.route('/set-model', methods=["POST"])
 def set_model():
     data = request.get_json()
-    model = data["model"]
+    model_id = data["modelId"]
 
     try:
-        ai_manager.set_model(model)
+        ai_manager.set_model(model_id)
         return {"Status": "Success"}
     except Exception as e:
         return {"Status": "Error", "Message": str(e)}, 500
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

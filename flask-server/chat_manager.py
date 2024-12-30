@@ -16,7 +16,7 @@ class ChatManager:
             "context": []
         }
         self.current_chat_path = None
-        self._ai_manager = AIManager(model="haiku")
+        self._ai_manager = AIManager(provider="claude", model="claude-3-5-haiku-20241022")
 
     def create_new_chat(self):
         chat_id = str(uuid4())

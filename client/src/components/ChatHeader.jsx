@@ -1,7 +1,15 @@
 import propTypes from "prop-types";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const ChatHeader = ({ chat_name, model, token_count, context_window, token_cost, chatId }) => {
+const ChatHeader = ({
+  chat_name,
+  model,
+  token_count,
+  context_window,
+  token_cost,
+  chatId,
+}) => {
   const navigate = useNavigate();
 
   const handleHist = () => navigate("/history");
@@ -43,7 +51,7 @@ const ChatHeader = ({ chat_name, model, token_count, context_window, token_cost,
             className="w-min text-white text-center p-2 align-middle thick-underline font-bold cursor-pointer"
             onClick={handleModel}
           >
-            {model}
+            {model.display_name}
           </td>
         </tr>
         <tr>
@@ -51,7 +59,7 @@ const ChatHeader = ({ chat_name, model, token_count, context_window, token_cost,
             TOKEN COUNT
           </th>
           <td className="w-min text-white text-center p-2 align-middle">
-            {token_count}/200000
+            {token_count}/{model.context_window}
           </td>
           <th className="text-white text-center p-2 align-middle">COST</th>
           <td className="w-min text-white text-center p-2 align-middle">
@@ -74,7 +82,7 @@ const ChatHeader = ({ chat_name, model, token_count, context_window, token_cost,
 
 ChatHeader.propTypes = {
   chat_name: propTypes.string.isRequired,
-  model: propTypes.string.isRequired,
+  model: propTypes.object.isRequired,
   token_count: propTypes.number.isRequired,
   token_cost: propTypes.number.isRequired,
 };

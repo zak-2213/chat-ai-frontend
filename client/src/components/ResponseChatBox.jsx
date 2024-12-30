@@ -11,7 +11,7 @@ const ResponseChatBox = ({ message }) => {
           max-w-[70%]
     "
       >
-        CLAUDE:
+        ASSISTANT:
       </div>
       <br/>
       <div

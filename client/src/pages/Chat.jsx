@@ -11,11 +11,11 @@ const Chat = () => {
   const [chatId, setChatId] = useState(location.state?.chatId || null);
   const [chat, setChat] = useState([]);
   const [model, setModel] = useState({
-    id: "claude-3-5-sonnet-20241022",
-    display_name: "Claude 3.5 Sonnet (New)",
-    context_window: 200000,
-    input_token_cost: 3,
-    output_token_cost: 15,
+    id: "deepseek-chat",
+    display_name: "Deepseek V3",
+    context_window: 64000,
+    input_token_cost: 0.27,
+    output_token_cost: 1.1,
   });
   const [tokenCount, setTokenCount] = useState(0);
   const [tokenCost, setTokenCost] = useState(0.0);
@@ -159,7 +159,7 @@ const Chat = () => {
     <div className="bg-black h-screen w-full flex flex-col overflow-hidden">
       <ChatHeader
         chat_name={chatName}
-        model={model.display_name}
+        model={model}
         token_count={tokenCount}
         context_window={model.context_window}
         token_cost={tokenCost}
