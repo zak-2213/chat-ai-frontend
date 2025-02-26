@@ -99,9 +99,9 @@ class DeepseekProvider(AIProvider):
 
 class ClaudeProvider(AIProvider):
     MODELS = {
-        "claude-3-5-sonnet-20241022": {
-            "id": "claude-3-5-sonnet-20241022",
-            "display_name": "Claude 3.5 Sonnet (New)",
+        "claude-3-7-sonnet-20250219": {
+            "id": "claude-3-7-sonnet-20250219",
+            "display_name": "Claude 3.7 Sonnet",
             "context_window": 200000,
             "input_token_cost": 3,
             "output_token_cost": 15
@@ -115,7 +115,7 @@ class ClaudeProvider(AIProvider):
         }
     }
 
-    def __init__(self, model="claude-3-5-sonnet-20241022"):
+    def __init__(self, model="claude-3-7-sonnet-20250219"):
         self._client = anthropic.Anthropic()
         self._model = self.MODELS[model]
 
@@ -189,7 +189,7 @@ class AIManager:
         }
     }
 
-    def __init__(self, provider="deepseek", model=None):
+    def __init__(self, provider="claude", model=None):
         if provider not in self.PROVIDERS:
             raise ValueError(f"Provider {provider} not supported")
 

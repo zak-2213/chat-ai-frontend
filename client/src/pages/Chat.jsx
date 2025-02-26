@@ -11,11 +11,11 @@ const Chat = () => {
   const [chatId, setChatId] = useState(location.state?.chatId || null);
   const [chat, setChat] = useState([]);
   const [model, setModel] = useState({
-    id: "deepseek-chat",
-    display_name: "Deepseek V3",
-    context_window: 64000,
-    input_token_cost: 0.27,
-    output_token_cost: 1.1,
+    id: "claude-3-7-sonnet-20250219",
+    display_name: "Claude 3.7 Sonnet",
+    context_window: 200000,
+    input_token_cost: 3,
+    output_token_cost: 15
   });
   const [tokenCount, setTokenCount] = useState(0);
   const [tokenCost, setTokenCost] = useState(0.0);
