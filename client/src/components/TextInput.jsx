@@ -31,6 +31,32 @@ const TextInput = ({ sendMessage }) => {
     }
   };
 
+  const handlePaste = (e) => {
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const items = clipboardData.items;
+
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          e.preventDefault(); // Prevent default paste behavior for images
+          const blob = items[i].getAsFile();
+          
+          // Generate a filename for the pasted image
+          const now = new Date();
+          const filename = `pasted-image-${now.getTime()}.png`;
+          
+          // Create a File object from the Blob
+          const file = new File([blob], filename, { type: blob.type });
+          
+          // Upload the file
+          handleUpload(file);
+          return;
+        }
+      }
+    }
+    // If no image is found, let the default paste behavior happen
+  };
+  
   const handleUpload = async (file) => {
     const fd = new FormData();
     fd.append("file", file);
@@ -130,9 +156,10 @@ const TextInput = ({ sendMessage }) => {
           value={inputVal}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           rows="1"
         />
-        <Button onClick={handleSendMessage} label="SEND" className="h-[40px]"/>
+        <Button onClick={handleSendMessage} label="SEND" className="h-[40px]" />
         <div className="relative">
           <button className="default-box h-[40px] w-[70px] text-white focus:border-[3px]">
             UPLOAD
