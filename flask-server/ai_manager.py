@@ -58,6 +58,7 @@ class DeepseekProvider(AIProvider):
             raise ValueError(f"Model {model} not found")
 
     def get_token_count(self, messages):
+        print(messages)
         user_messages = [msg["content"][0]["text"] for msg in messages if msg["role"] == "user"]
         assistant_messages = [msg["content"] for msg in messages if msg["role"] == "assistant"]
         enc = tiktoken.get_encoding("o200k_base")
