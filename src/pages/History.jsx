@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const History = () => {
+const History = ({chatManager}) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -9,10 +9,8 @@ const History = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5000/history")
-      .then((res) => res.json())
-      .then((history) => setChatHistory(history.History))
-      .catch((err) => console.error("Error fetching history:", err));
+      let history = chatManager.getChatHistory();
+      setChatHistory(history);
   }, [refresh]);
 
   const handleClick = (id) => {
@@ -41,30 +39,18 @@ const History = () => {
   };
 
   const saveEdit = (id) => {
-    fetch("http://localhost:5000/edit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id, new_name: editingName }),
-    })
-      .then(() => {
-        setEditingId(null);
-        setRefresh(!refresh);
-      })
-      .catch((err) => console.error("Error editing chat:", err));
+      chatManager.updateChatName(id, editingName);
+      setEditingId(null);
+      setRefresh(!refresh);
   };
 
   const deleteChat = (id) => {
-    fetch("http://localhost:5000/delete", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id }),
-    })
-      .then(() => setRefresh(!refresh))
-      .catch((err) => console.error("Error deleting chat:", err));
+      let success = chatManager.deleteChat(id);
+      if (success) {
+        setRefresh(!refresh);
+      } else {
+        console.error("Error deleting chat:", err)
+      }
   };
 
   return (

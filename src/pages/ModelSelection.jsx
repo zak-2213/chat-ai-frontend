@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "../components/Button";
 
-const ModelSelection = () => {
+const ModelSelection = ({aiManager}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const chatId = location.state.id;
@@ -12,55 +12,20 @@ const ModelSelection = () => {
   const [modelList, setModelList] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/get-providers")
-      .then((res) => res.json())
-      .then((data) => {
-        setProviders(data.providers);
-      })
-      .catch((err) => console.error("Error fetching providers:", err));
-
-    fetch("http://localhost:5000/get-current-provider")
-      .then((res) => res.json())
-      .then((data) => {
-        setCurrentProvider(data.current_provider);
-      })
-      .catch((err) => console.error("Error fetching current provider:", err));
-
-    fetch("http://localhost:5000/get-models")
-      .then((res) => res.json())
-      .then((data) => {
-        setModelList(data);
-      })
-      .catch((err) => console.error("Error fetching models:", err));
+      let providers = aiManager.get_all_providers();
+      setProviders(providers);
+      let current_provider = aiManager.get_current_provider();
+      setCurrentProvider(current_provider);
+      let models = aiManager.get_all_models();
+      setModelList(models);
   }, []);
 
   const handleProviderChange = async (providerId) => {
     try {
-      const providerResponse = await fetch(
-        "http://localhost:5000/set-provider",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ provider: providerId }),
-        },
-      );
+      let current_provider = aiManager.set_provider(providerId);
+      setCurrentProvider(current_provider);
 
-      if (!providerResponse.ok) {
-        throw new Error("Failed to set provider");
-      }
-
-      const providerData = await providerResponse.json();
-
-      setCurrentProvider(providerData.current_provider);
-
-      const modelsResponse = await fetch("http://localhost:5000/get-models");
-      if (!modelsResponse.ok) {
-        throw new Error("Failed to fetch models");
-      }
-
-      const models = await modelsResponse.json();
+      let models = aiManager.get_all_models();
       setModelList(models);
     } catch (err) {
       console.error("Error in handleProviderChange:", err);
@@ -68,13 +33,7 @@ const ModelSelection = () => {
   };
 
   const handleModelSelect = (model) => {
-    fetch("http://localhost:5000/set-model", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ modelId: model.id }),
-    }).catch((err) => console.error("Error setting model:", err));
+    aiManager.set_model(model.id);
 
     navigate(`/`, {
       state: {

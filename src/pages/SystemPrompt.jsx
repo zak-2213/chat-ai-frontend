@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { useLocation } from "react-router-dom";
 
-const SystemPrompt = () => {
+const SystemPrompt = ({chatManager}) => {
   const location = useLocation();
   const id = location.state.id;
   const [sysPrompt, setSysPrompt] = useState("");
@@ -12,17 +12,8 @@ const SystemPrompt = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // First set the ID in the server
-    fetch("http://localhost:5000/get-system", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id }),
-    })
-      .then((res) => res.json())
-      .then((sys) => setSysPrompt(sys.System))
-      .catch((err) => console.error("Error getting system prompt:", err));
+      let sys = chatManager.getSystemPrompt(id);
+      setSysPrompt(sys);
   }, [id]);
 
   const handleInput = (e) => {
@@ -50,16 +41,10 @@ const SystemPrompt = () => {
     }
   };
 
-  const setSystem = () =>
-    fetch("http://localhost:5000/set-system", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id, system: sysPrompt }),
-    })
-      .then(() => handleNav())
-      .catch((err) => console.error("Error setting new system prompt:", err));
+  const setSystem = () => {
+      chatManager.updateSystemPrompt(id, sysPrompt);
+      handleNav();
+  }
 
   const handleCancel = () => {
     clearInput();

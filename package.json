@@ -11,11 +11,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.55.1",
+    "ollama": "^0.5.16",
+    "openai": "^5.8.2",
+    "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.28.1",
-    "uuid": "^11.0.3"
+    "tiktoken": "^1.0.21",
+    "uuid": "^11.1.0",
+    "vite-plugin-wasm": "^3.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

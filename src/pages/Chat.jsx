@@ -5,17 +5,17 @@ import TextInput from "../components/TextInput";
 import ChatHeader from "../components/ChatHeader";
 import { useLocation } from "react-router-dom";
 
-const Chat = () => {
+const Chat = ({aiManager, chatManager, uploadManager}) => {
   const location = useLocation();
   const chatContainerRef = useRef(null);
   const [chatId, setChatId] = useState(location.state?.chatId || null);
   const [chat, setChat] = useState([]);
   const [model, setModel] = useState({
-    id: "claude-3-7-sonnet-20250219",
-    display_name: "Claude 3.7 Sonnet",
-    context_window: 200000,
-    input_token_cost: 3,
-    output_token_cost: 15
+    id: "gemma3n:e4b",
+    display_name: "Gemma 3n",
+    context_window: 32000,
+    input_token_cost: 0,
+    output_token_cost: 0
   });
   const [tokenCount, setTokenCount] = useState(0);
   const [tokenCost, setTokenCost] = useState(0.0);
@@ -24,24 +24,12 @@ const Chat = () => {
 
   useEffect(() => {
     if (chatId) {
-      fetch("http://localhost:5000/get-chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: chatId }),
-      })
-        .then((res) => res.json())
-        .then((convo) => setChat(convo.Chat.context))
-        .catch((err) => console.error("Error getting chat:", err));
+        let chat = chatManager.loadChat(chatId);
+        setChat(chat.context);
     } else {
-      fetch("http://localhost:5000/new-chat")
-        .then((res) => res.json())
-        .then((convo) => {
-          setChat(convo.Chat.context);
-          setChatId(convo.Chat.id);
-        })
-        .catch((err) => console.error("Error starting new chat:", err));
+        let chat = chatManager.createNewChat();
+        setChat(chat.context);
+        setChatId(chat.id);
     }
   }, []);
 
@@ -52,39 +40,19 @@ const Chat = () => {
   }, [location.state?.model]);
 
   useEffect(() => {
-    if (chatName === "NEW CHAT") {
-      fetch("http://localhost:5000/get-chat-name", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: chatId }),
-      })
-        .then((res) => res.json())
-        .then((chat_name) => setChatName(chat_name.Name))
-        .catch((error) => console.error("Error getting chat name:", error));
-    }
+      async function newChat() {
+          if (chatName === "NEW CHAT") {
+              await chatManager.generateChatName();
+              setChatName(chatManager.currentChat.chat_name);
+          }
+      }
   }, [assistantMessage]);
 
   useEffect(() => {
     if (chat.length > 0) {
-      fetch("http://localhost:5000/tokens", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messages: chat }),
-      })
-        .then((res) => res.json())
-        .then((tokens) => {
-          setTokenCount(tokens.input_tokens + tokens.output_tokens);
-          calcTokenCost(tokens.input_tokens, tokens.output_tokens);
-        })
-        .catch((err) => {
-          console.error("Error counting tokens:", err);
-          setTokenCost(0);
-          setTokenCount(0);
-        });
+        let tokens = aiManager.get_token_count(chat);
+        setTokenCount(tokens.input_tokens + tokens.output_tokens);
+        calcTokenCost(tokens.input_tokens, tokens.output_tokens);
     }
   }, [chat]);
 
@@ -106,54 +74,44 @@ const Chat = () => {
     setTokenCost(Number(dollar_cost.toFixed(2)));
   };
 
-  const sendMessage = (content) => {
+const sendMessage = async (content) => {
+    // Add user message to chat
     setChat((prevChat) => [...prevChat, { role: "user", content: content }]);
-    // Reset the assistant's message
+    
+    // Add to chat manager
+    await chatManager.addMessage(chatId, content, "user");
+    
+    // Reset assistant message
     setAssistantMessage("");
+    let fullMessage = "";
 
-    fetch("http://localhost:5000/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content: content,
-        id: chatId,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let fullMessage = "";
-
-        function read() {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              // Finished reading, append the assistant's message to chat
-              setChat((prevChat) => [
-                ...prevChat,
-                { role: "assistant", content: fullMessage.trim() },
-              ]);
-              setAssistantMessage("");
-              return;
+    try {
+        // Get context and system prompt
+        const context = chatManager.currentChat.context;
+        const system = chatManager.currentChat.system;
+        
+        // Get the response stream
+        const stream = await aiManager.get_response_stream(context, system);
+        
+        // Process the stream
+        for await (const chunk of stream) {
+            if (chunk) {
+                fullMessage += chunk;
+                setAssistantMessage(fullMessage);
             }
-            const chunk = decoder.decode(value, { stream: true });
-            fullMessage += chunk;
-            // Update the assistant's message with the new chunk
-            setAssistantMessage(fullMessage);
-            return read();
-          });
         }
-        return read();
-      })
-      .catch((error) => {
+        
+        // Add assistant response to chat
+        setChat((prevChat) => [...prevChat, { role: "assistant", content: fullMessage }]);
+        await chatManager.addMessage(chatId, fullMessage, "assistant");
+        
+        // Reset assistant message
+        setAssistantMessage("");
+    } catch (error) {
         console.error("Error receiving message:", error);
         setAssistantMessage("Error: Failed to get response");
-      });
-  };
+    }
+};
 
   return (
     <div className="bg-black h-screen w-full flex flex-col overflow-hidden">
