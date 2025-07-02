@@ -10,7 +10,7 @@ class ChatManager {
       chat_name: "NEW CHAT",
       context: [],
     };
-    this.aiManager = new AIManager("ollama", "gemma3n-e4b");
+    this.aiManager = new AIManager("ollama", "gemma3n:e4b");
     this.loadFromStorage();
   }
 
