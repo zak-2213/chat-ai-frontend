@@ -143,17 +143,18 @@ const sendMessage = async (content) => {
                   <ResponseChatBox
                     key={`assistant-${chatIndex}`}
                     message={message.content}
+                    model_name={model.display_name.toUpperCase()}
                   />
                 ),
               )}
               {assistantMessage && (
-                <ResponseChatBox key="assistant" message={assistantMessage} />
+                <ResponseChatBox key="assistant" message={assistantMessage} model_name={model.display_name.toUpperCase()} />
               )}
             </>
           )}
         </div>
       }
-      <TextInput sendMessage={sendMessage} />
+      <TextInput sendMessage={sendMessage} uploadManager={uploadManager} />
     </div>
   );
 };

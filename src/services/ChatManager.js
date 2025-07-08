@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { AIManager } from "./AiManager";
 
 class ChatManager {
-  constructor(storageKey = "chat_history") {
+  constructor(storageKey = ".chat_history") {
     this.storageKey = storageKey;
     this.currentChat = {
       id: "",
@@ -122,7 +122,7 @@ class ChatManager {
       }
 
       this.currentChat.chat_name = responseText.trim().toUpperCase();
-      this.saveChat();
+      this.saveToStorage();
     } catch (error) {
       console.error("Error generating chat name:", error);
     }
@@ -149,19 +149,25 @@ class ChatManager {
   async addMessage(chatId, content, role = "user") {
     if (!this.chats[chatId]) return;
 
-    this.chats[chatId].context.push({
-      role,
-      content,
-    });
-
+    // Only store text content (skip documents/files)
     if (
-      this.chats[chatId].context.length >= 2 &&
-      this.chats[chatId].chat_name === "NEW CHAT"
+      typeof content === "string" ||
+      (Array.isArray(content) && content.some((part) => part.type === "text"))
     ) {
-      await this.generateChatName();
-    }
+      this.chats[chatId].context.push({
+        role,
+        content,
+      });
 
-    this.saveToStorage();
+      if (
+        this.chats[chatId].context.length >= 2 &&
+        this.chats[chatId].chat_name === "NEW CHAT"
+      ) {
+        await this.generateChatName();
+      }
+
+      this.saveToStorage();
+    }
   }
 
   getChatHistory() {

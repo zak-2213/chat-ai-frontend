@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import propTypes from "prop-types";
 import Button from "./Button";
 
-const TextInput = ({ sendMessage }) => {
+const TextInput = ({ sendMessage, uploadManager }) => {
   const [content, setContent] = useState([]);
   const [inputVal, setInputVal] = useState("");
   const [showScroll, setShowScroll] = useState(false);
@@ -61,20 +61,16 @@ const TextInput = ({ sendMessage }) => {
     const fd = new FormData();
     fd.append("file", file);
 
-    try {
-      const res = await fetch("http://localhost:5000/upload-file", {
-        method: "POST",
-        body: fd,
-      });
-      const data = await res.json();
+        const processed = await uploadManager.upload(file)
+    if (processed) {
       setContent((prev) => [
         ...prev,
         {
-          ...data.FileData,
+          ...processed,
           filename: file.name,
         },
       ]);
-    } catch (err) {
+    } else {
       console.error("Error uploading file:", err);
     }
   };

@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import ReactMarkdown from "react-markdown";
 
-const ResponseChatBox = ({ message }) => {
+const ResponseChatBox = ({ message, model_name }) => {
   return (
     <div className="w-full">
       <div
@@ -9,13 +9,13 @@ const ResponseChatBox = ({ message }) => {
           text-white
           pl-4
           inline-block
-          max-w-[70%]
+          max-w
     "
       >
-        ASSISTANT:
+        <b>{model_name}:</b>
       </div>
       <br />
-      <div className="pl-4 inline-block max-w-[70%] text-white break-words prose prose-invert">
+      <div className="pl-4 inline-block max-w text-white break-words prose prose-invert">
         <ReactMarkdown>{message}</ReactMarkdown>
       </div>
     </div>

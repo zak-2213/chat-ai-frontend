@@ -303,6 +303,13 @@ class OllamaProvider extends AIProvider {
       input_token_cost: 0,
       output_token_cost: 0,
     },
+    "qwen2.5-coder:7b": {
+      id: "qwen2.5-coder:7b",
+      display_name: "Qwen 2.5 Coder 7b",
+      context_window: 128000,
+      input_token_cost: 0,
+      output_token_cost: 0,
+    },
   };
 
   constructor(model = "gemma3n:e4b") {

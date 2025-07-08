@@ -30,7 +30,7 @@ html {
 
 body {
     /* padding: var(--line-height) 2ch; */
-    max-width: calc(min(80ch, round(down, 100%, 1ch)));
+    max-width: calc(min(90ch, round(down, 100%, 1ch)));
     margin: 0 auto;
 }
 
