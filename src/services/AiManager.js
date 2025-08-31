@@ -296,10 +296,10 @@ class ClaudeProvider extends AIProvider {
 
 class OllamaProvider extends AIProvider {
   static MODELS = {
-    "gemma3n:e4b": {
-      id: "gemma3n:e4b",
-      display_name: "Gemma 3n",
-      context_window: 32000,
+    "gpt-oss:20b": {
+      id: "gpt-oss:20b",
+      display_name: "GPT OSS",
+      context_window: 128000,
       input_token_cost: 0,
       output_token_cost: 0,
     },
@@ -312,7 +312,7 @@ class OllamaProvider extends AIProvider {
     },
   };
 
-  constructor(model = "gemma3n:e4b") {
+  constructor(model = "gpt-oss:20b") {
     super();
     this.set_model(model); // Use set_model to initialize
   }
